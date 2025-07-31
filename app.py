@@ -73,22 +73,21 @@ st.markdown("""
     .stButton > button:hover {
         background-color: #004070; /* Darker blue on hover */
     }
+    .centered-text {
+        text-align: center;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # --- Header ---
-# Add developer credit and logo in the header
-col1, col2 = st.columns([1, 4])
-with col1:
-    try:
-        # Placeholder for an actual logo, similar to Quarterback Crown
-        st.image("https://placehold.co/80x80/6A0572/FFFFFF?text=CC", width=80)
-    except:
-        st.markdown("🌱") # Fallback if logo not found
-
-with col2:
-    st.markdown("### www.cognitivecloud.ai")
-    st.markdown("**Developed by Xavier Honablue M.Ed**")
+# Removed the image column and made the text a hyperlink, centered.
+st.markdown(
+    f'<div class="centered-text">'
+    f'<h3><a href="https://cognitivecloud-launcher.streamlit.app/#cognitive-cloud-ai-app-launcher" target="_blank" style="color: #005A9C; text-decoration: none;">cognitivecloud.ai</a></h3>'
+    f'<p><strong>Developed by Xavier Honablue M.Ed</strong></p>'
+    f'</div>',
+    unsafe_allow_html=True
+)
 
 st.markdown("---") # Separator after the developer credit
 
@@ -155,7 +154,7 @@ st.markdown("""
     <li>**English Language Arts (CCSS.ELA-Literacy.R.CCR.1-10, W.CCR.1-10):** A growth mindset helps students in ELA by:
         <ul>
             <li>**Reading closely and making logical inferences (R.CCR.1):** They are more open to re-reading and re-evaluating texts when faced with comprehension challenges.</li>
-            <li>**Producing clear and coherent writing (W.CCR.4):** They embrace the iterative process of drafting, revising, and editing, seeing it as a path to better writing.</li>
+            <li>**Producing clear and coherent writing (W.CCR.4):):** They embrace the iterative process of drafting, revising, and editing, seeing it as a path to better writing.</li>
         </ul>
     </li>
     <li>**Science & Engineering Practices (NGSS):** Similar to math, a growth mindset is essential for scientific inquiry and engineering design, encouraging students to:
