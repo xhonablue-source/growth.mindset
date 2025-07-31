@@ -5,7 +5,7 @@ import json # For parsing Gemini API response
 import requests # For making HTTP requests to Gemini API
 
 # --- Page Configuration ---
-st.set_page_config( # Changed from st.set_config to st.set_page_config
+st.set_page_config(
     page_title="CognitiveCloud.ai: Growth Mindset Explorer",
     page_icon="🌱", # A plant icon to symbolize growth
     layout="wide",
@@ -58,7 +58,8 @@ st.markdown("""
         margin-top: 1.5rem;
         margin-bottom: 1.5rem;
     }
-    .button-style {
+    /* Updated button styling to target Streamlit's default button elements */
+    .stButton > button {
         background-color: #005A9C; /* Accent blue button */
         color: white;
         padding: 0.75rem 1.5rem;
@@ -69,7 +70,7 @@ st.markdown("""
         border: none;
         margin-top: 10px; /* Add some space below the text area */
     }
-    .button-style:hover {
+    .stButton > button:hover {
         background-color: #004070; /* Darker blue on hover */
     }
 </style>
@@ -232,7 +233,7 @@ st.markdown('<h2 class="section-header">Your Growth Journal</h2>', unsafe_allow_
 
 # Challenge Entry
 challenge_text = st.text_area("Describe a challenge you're facing:", height=100, key="journal_challenge_text")
-if st.button("Get Feedback on Challenge", key="feedback_challenge_btn", class_name="button-style"):
+if st.button("Get Feedback on Challenge", key="feedback_challenge_btn"): # Removed class_name
     if challenge_text:
         system_instruction_challenge = "You are Dr. X, a friendly growth mindset coach. Provide encouraging and constructive feedback specifically on the student's described challenge. Emphasize perseverance and learning."
         with st.spinner("Dr. X is thinking..."):
@@ -243,7 +244,7 @@ if st.button("Get Feedback on Challenge", key="feedback_challenge_btn", class_na
 
 # Effort Entry
 effort_taken = st.text_area("What effort have you made so far?", height=100, key="journal_effort_taken")
-if st.button("Get Feedback on Effort", key="feedback_effort_btn", class_name="button-style"):
+if st.button("Get Feedback on Effort", key="feedback_effort_btn"): # Removed class_name
     if effort_taken:
         system_instruction_effort = "You are Dr. X, a friendly growth mindset coach. Acknowledge and praise the student's effort. Reinforce that effort is key to growth and encourage continued dedication."
         with st.spinner("Dr. X is thinking..."):
@@ -254,7 +255,7 @@ if st.button("Get Feedback on Effort", key="feedback_effort_btn", class_name="bu
 
 # Mistake Entry
 mistake_text = st.text_area("Describe a mistake you’ve made:", height=100, key="journal_mistake_text")
-if st.button("Get Feedback on Mistake", key="feedback_mistake_btn", class_name="button-style"):
+if st.button("Get Feedback on Mistake", key="feedback_mistake_btn"): # Removed class_name
     if mistake_text:
         system_instruction_mistake = "You are Dr. X, a friendly growth mindset coach. Help the student reframe their mistake as a learning opportunity. Emphasize that mistakes are valuable for growth."
         with st.spinner("Dr. X is thinking..."):
@@ -265,7 +266,7 @@ if st.button("Get Feedback on Mistake", key="feedback_mistake_btn", class_name="
 
 # Lesson Learned Entry
 lesson_learned = st.text_area("What did you learn from that mistake?", height=100, key="journal_lesson_learned")
-if st.button("Get Feedback on Lesson Learned", key="feedback_lesson_btn", class_name="button-style"):
+if st.button("Get Feedback on Lesson Learned", key="feedback_lesson_btn"): # Removed class_name
     if lesson_learned:
         system_instruction_lesson = "You are Dr. X, a friendly growth mindset coach. Validate the student's learning from their mistake. Encourage them to apply this lesson in the future."
         with st.spinner("Dr. X is thinking..."):
@@ -276,7 +277,7 @@ if st.button("Get Feedback on Lesson Learned", key="feedback_lesson_btn", class_
 
 # Growth Action Entry
 growth_action = st.text_input("One action you’ll take to grow this week:", "e.g., Ask for help on a tough math problem", key="journal_growth_action")
-if st.button("Get Feedback on Growth Action", key="feedback_growth_action_btn", class_name="button-style"):
+if st.button("Get Feedback on Growth Action", key="feedback_growth_action_btn"): # Removed class_name
     if growth_action:
         system_instruction_action = "You are Dr. X, a friendly growth mindset coach. Provide encouraging feedback on the student's planned growth action. Emphasize the importance of taking concrete steps."
         with st.spinner("Dr. X is thinking..."):
@@ -287,7 +288,7 @@ if st.button("Get Feedback on Growth Action", key="feedback_growth_action_btn", 
 
 
 # --- Export Button ---
-if st.button("📅 Download My Journal as Text File", class_name="button-style", key="download_journal_btn"):
+if st.button("📅 Download My Journal as Text File", key="download_journal_btn"): # Removed class_name
     buffer = io.StringIO()
     buffer.write("Growth Mindset Reflection Journal\n\n")
     buffer.write(f"Challenge: {challenge_text}\n")
