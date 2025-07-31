@@ -5,7 +5,7 @@ import json # For parsing Gemini API response
 import requests # For making HTTP requests to Gemini API
 
 # --- Page Configuration ---
-st.set_page_config(
+st.set_config(
     page_title="CognitiveCloud.ai: Growth Mindset Explorer",
     page_icon="🌱", # A plant icon to symbolize growth
     layout="wide",
@@ -67,6 +67,7 @@ st.markdown("""
         transition: background-color 0.3s ease;
         cursor: pointer;
         border: none;
+        margin-top: 10px; /* Add some space below the text area */
     }
     .button-style:hover {
         background-color: #004070; /* Darker blue on hover */
@@ -154,16 +155,23 @@ st.markdown("""
 st.markdown('</div>', unsafe_allow_html=True)
 
 
-# Initialize session state for Dr. X chat
-if 'chat_history' not in st.session_state:
-    st.session_state.chat_history = [
+# Initialize session state for Dr. X chat (for general chat)
+if 'general_chat_history' not in st.session_state:
+    st.session_state.general_chat_history = [
         {"role": "assistant", "content": "Hello! I'm Dr. X, your AI growth mindset coach. How can I help you explore your potential today?"}
     ]
 
 # Function to call Gemini API with exponential backoff for chat
-def get_gemini_chat_response_with_retry(chat_history_for_gemini, max_retries=5, initial_delay=1.0):
+def get_gemini_chat_response_with_retry(chat_history_for_gemini, system_instruction, max_retries=5, initial_delay=1.0):
+    # Prepend the system instruction to the chat history for this specific call
+    full_chat_history = [{"role": "user", "parts": [{"text": system_instruction}]}]
+    full_chat_history.append({"role": "model", "parts": [{"text": "Understood. I'm ready to help!"}]}) # Acknowledge system instruction
+    for msg in chat_history_for_gemini:
+        role = "user" if msg["role"] == "user" else "model"
+        full_chat_history.append({"role": role, "parts": [{"text": msg["content"]}]})
+
     payload = {
-        "contents": chat_history_for_gemini,
+        "contents": full_chat_history,
         "generationConfig": {
             "responseMimeType": "text/plain"
         }
@@ -189,54 +197,94 @@ def get_gemini_chat_response_with_retry(chat_history_for_gemini, max_retries=5, 
                 return f"Error: Could not get feedback after {max_retries} retries: {e}"
     return "Error: Could not get feedback."
 
-# --- Dr. X Chat Interface ---
-st.header("💬 Talk to Dr. X")
+# --- Dr. X General Chat Interface ---
+st.header("💬 Talk to Dr. X (General Chat)")
 st.markdown("Ask Dr. X anything about growth mindset, challenges, mistakes, or your personal growth journey!")
 
 # Display chat messages from history on app rerun
-for message in st.session_state.chat_history:
+for message in st.session_state.general_chat_history:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
 # React to user input
-if prompt := st.chat_input("Ask Dr. X about your growth...", key="drx_chat_input"):
+if prompt := st.chat_input("Ask Dr. X about your growth...", key="drx_general_chat_input"):
     # Display user message in chat message container
     st.chat_message("user").markdown(prompt)
     # Add user message to chat history
-    st.session_state.chat_history.append({"role": "user", "content": prompt})
+    st.session_state.general_chat_history.append({"role": "user", "content": prompt})
 
-    # Construct the full chat history for Gemini API, including system instruction
-    gemini_chat_history = []
-    # System instruction as the first user message for context
-    gemini_chat_history.append({"role": "user", "parts": [{"text": "You are Dr. X, a friendly, encouraging, and knowledgeable AI growth mindset coach for middle and high school students. Your goal is to provide supportive, actionable advice on embracing challenges, learning from mistakes, and fostering a growth mindset. Keep responses concise and inspiring. Always maintain a positive and supportive tone."}]})
-    # Acknowledge the system instruction from the model's side
-    gemini_chat_history.append({"role": "model", "parts": [{"text": "Understood. I'm ready to help you on your growth journey!"}]})
-
-    # Append actual chat history
-    for msg in st.session_state.chat_history:
-        # Ensure roles are 'user' or 'model' for Gemini API
-        role = "user" if msg["role"] == "user" else "model"
-        gemini_chat_history.append({"role": role, "parts": [{"text": msg["content"]}]})
+    system_instruction_general = "You are Dr. X, a friendly, encouraging, and knowledgeable AI growth mindset coach for middle and high school students. Your goal is to provide supportive, actionable advice on embracing challenges, learning from mistakes, and fostering a growth mindset. Keep responses concise and inspiring. Always maintain a positive and supportive tone."
 
     # Get assistant response
     with st.spinner("Dr. X is thinking..."):
-        assistant_response = get_gemini_chat_response_with_retry(gemini_chat_history)
+        assistant_response = get_gemini_chat_response_with_retry(st.session_state.general_chat_history, system_instruction_general)
 
     # Display assistant response in chat message container
     with st.chat_message("assistant"):
         st.markdown(assistant_response)
     # Add assistant response to chat history
-    st.session_state.chat_history.append({"role": "assistant", "content": assistant_response})
+    st.session_state.general_chat_history.append({"role": "assistant", "content": assistant_response})
 
 
 # --- Journaling Section ---
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.markdown('<h2 class="section-header">Your Growth Journal</h2>', unsafe_allow_html=True)
+
+# Challenge Entry
 challenge_text = st.text_area("Describe a challenge you're facing:", height=100, key="journal_challenge_text")
+if st.button("Get Feedback on Challenge", key="feedback_challenge_btn", class_name="button-style"):
+    if challenge_text:
+        system_instruction_challenge = "You are Dr. X, a friendly growth mindset coach. Provide encouraging and constructive feedback specifically on the student's described challenge. Emphasize perseverance and learning."
+        with st.spinner("Dr. X is thinking..."):
+            feedback = get_gemini_chat_response_with_retry([{"role": "user", "content": challenge_text}], system_instruction_challenge)
+            st.markdown(f"<div class='highlight-box'><p style='font-weight: bold; color: #388E3C;'>Dr. X's Feedback on your Challenge:</p><p style='color: #4CAF50;'>{feedback}</p></div>", unsafe_allow_html=True)
+    else:
+        st.warning("Please describe your challenge before getting feedback.")
+
+# Effort Entry
 effort_taken = st.text_area("What effort have you made so far?", height=100, key="journal_effort_taken")
+if st.button("Get Feedback on Effort", key="feedback_effort_btn", class_name="button-style"):
+    if effort_taken:
+        system_instruction_effort = "You are Dr. X, a friendly growth mindset coach. Acknowledge and praise the student's effort. Reinforce that effort is key to growth and encourage continued dedication."
+        with st.spinner("Dr. X is thinking..."):
+            feedback = get_gemini_chat_response_with_retry([{"role": "user", "content": effort_taken}], system_instruction_effort)
+            st.markdown(f"<div class='highlight-box'><p style='font-weight: bold; color: #388E3C;'>Dr. X's Feedback on your Effort:</p><p style='color: #4CAF50;'>{feedback}</p></div>", unsafe_allow_html=True)
+    else:
+        st.warning("Please describe your effort before getting feedback.")
+
+# Mistake Entry
 mistake_text = st.text_area("Describe a mistake you’ve made:", height=100, key="journal_mistake_text")
+if st.button("Get Feedback on Mistake", key="feedback_mistake_btn", class_name="button-style"):
+    if mistake_text:
+        system_instruction_mistake = "You are Dr. X, a friendly growth mindset coach. Help the student reframe their mistake as a learning opportunity. Emphasize that mistakes are valuable for growth."
+        with st.spinner("Dr. X is thinking..."):
+            feedback = get_gemini_chat_response_with_retry([{"role": "user", "content": mistake_text}], system_instruction_mistake)
+            st.markdown(f"<div class='highlight-box'><p style='font-weight: bold; color: #388E3C;'>Dr. X's Feedback on your Mistake:</p><p style='color: #4CAF50;'>{feedback}</p></div>", unsafe_allow_html=True)
+    else:
+        st.warning("Please describe your mistake before getting feedback.")
+
+# Lesson Learned Entry
 lesson_learned = st.text_area("What did you learn from that mistake?", height=100, key="journal_lesson_learned")
+if st.button("Get Feedback on Lesson Learned", key="feedback_lesson_btn", class_name="button-style"):
+    if lesson_learned:
+        system_instruction_lesson = "You are Dr. X, a friendly growth mindset coach. Validate the student's learning from their mistake. Encourage them to apply this lesson in the future."
+        with st.spinner("Dr. X is thinking..."):
+            feedback = get_gemini_chat_response_with_retry([{"role": "user", "content": lesson_learned}], system_instruction_lesson)
+            st.markdown(f"<div class='highlight-box'><p style='font-weight: bold; color: #388E3C;'>Dr. X's Feedback on your Lesson Learned:</p><p style='color: #4CAF50;'>{feedback}</p></div>", unsafe_allow_html=True)
+    else:
+        st.warning("Please describe your lesson learned before getting feedback.")
+
+# Growth Action Entry
 growth_action = st.text_input("One action you’ll take to grow this week:", "e.g., Ask for help on a tough math problem", key="journal_growth_action")
+if st.button("Get Feedback on Growth Action", key="feedback_growth_action_btn", class_name="button-style"):
+    if growth_action:
+        system_instruction_action = "You are Dr. X, a friendly growth mindset coach. Provide encouraging feedback on the student's planned growth action. Emphasize the importance of taking concrete steps."
+        with st.spinner("Dr. X is thinking..."):
+            feedback = get_gemini_chat_response_with_retry([{"role": "user", "content": growth_action}], system_instruction_action)
+            st.markdown(f"<div class='highlight-box'><p style='font-weight: bold; color: #388E3C;'>Dr. X's Feedback on your Growth Action:</p><p style='color: #4CAF50;'>{feedback}</p></div>", unsafe_allow_html=True)
+    else:
+        st.warning("Please enter a growth action before getting feedback.")
+
 
 # --- Export Button ---
 if st.button("📅 Download My Journal as Text File", class_name="button-style", key="download_journal_btn"):
@@ -292,7 +340,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 # --- Footer ---
 st.markdown("---")
 st.markdown("""
-<div style="text-align: center; margin-top: 2rem; color: #666;">
+<div style="text-align: center; margin-top: 2rem; color: #666;'>
     <p>💡 <strong>Empowering Young Minds in STEAM</strong></p>
     <p>Developed by Xavier Honablue M.Ed for CognitiveCloud.ai Education</p>
 </div>
