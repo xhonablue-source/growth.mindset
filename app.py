@@ -5,7 +5,7 @@ import json # For parsing Gemini API response
 import requests # For making HTTP requests to Gemini API
 
 # --- Page Configuration ---
-st.set_config(
+st.set_page_config( # Changed from st.set_config to st.set_page_config
     page_title="CognitiveCloud.ai: Growth Mindset Explorer",
     page_icon="🌱", # A plant icon to symbolize growth
     layout="wide",
