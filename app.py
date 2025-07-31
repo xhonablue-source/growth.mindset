@@ -77,8 +77,24 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Header ---
+# Add developer credit and logo in the header
+col1, col2 = st.columns([1, 4])
+with col1:
+    try:
+        # Placeholder for an actual logo, similar to Quarterback Crown
+        st.image("https://placehold.co/80x80/6A0572/FFFFFF?text=CC", width=80)
+    except:
+        st.markdown("🌱") # Fallback if logo not found
+
+with col2:
+    st.markdown("### www.cognitivecloud.ai")
+    st.markdown("**Developed by Xavier Honablue M.Ed**")
+
+st.markdown("---") # Separator after the developer credit
+
 st.markdown('<h1 class="main-header">🌱 CognitiveCloud.ai: Growth Mindset Explorer</h1>', unsafe_allow_html=True)
 st.markdown('<p class="sub-header">Unlock Your Potential: Embrace Challenges, Learn from Mistakes, and Grow!</p>', unsafe_allow_html=True)
+
 
 # --- Welcome Card with Quotes ---
 st.markdown('<div class="card">', unsafe_allow_html=True)
