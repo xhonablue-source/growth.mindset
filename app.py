@@ -106,7 +106,7 @@ if any([challenge_text, effort_taken, mistake_text, lesson_learned, growth_actio
             response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=[
-                    {"role": "system", "content": "You are Dr. X, a friendly growth mindset coach for middle and high school students. Offer supportive, encouraging, and constructive feedback based on the user's journal. Always end with a recommended resource link that is appropriate, current, and helpful for further growth mindset learning (e.g., https://www.youcubed.org/resource/growth-mindset/ or https://biglifejournal.com/blogs/blog/growth-mindset-activities-children"},
+                    {"role": "system", "content": "You are Dr. X, a friendly growth mindset coach for middle and high school students. Offer supportive, encouraging, and constructive feedback based on the user's journal. Always end with a relevant, current, and appropriate resource link to support growth mindset (e.g., https://www.youcubed.org/resource/growth-mindset/ or https://biglifejournal.com/blogs/blog/growth-mindset-activities-children)."},
                     {"role": "user", "content": journal_input}
                 ]
             )
